@@ -44,7 +44,7 @@ This domain teaches the parts that simple task-list tutorials omit: object-level
 | `GET` | `/v1/orders/{id}` | Read an order | Object-level authorization |
 | `GET` | `/v1/orders` | List the caller's orders | Tenant/user scoping and pagination |
 
-Non-goals for the first version: microservices, Kubernetes, event sourcing, a custom authentication server, a generic repository framework, and premature caching.
+Non-goals for the first version: independently deployed microservices, Kubernetes, event sourcing, a custom authentication server, a generic repository framework, and premature caching. Microservice boundary thinking still begins during domain discovery and remains a required learning lens throughout the modular-monolith phases.
 
 ## 3. Recommended architecture
 
@@ -147,6 +147,8 @@ Budget about three focused hours per day: 45 minutes reading, 90 minutes coding,
 
 ### Day 1: Go as a backend language
 
+Detailed lesson: [Day 1: Go backend foundations](study-materials/day-01-go-backend-foundations.md). It contains the explanations, examples, guided exercise, expected knowledge-check answers, and completion evidence needed to finish this day without an external tutorial.
+
 Learn:
 
 - modules, packages, visibility, zero values, structs, methods, slices, and maps;
@@ -171,6 +173,8 @@ Must finish: explain when to return a value versus a pointer, how an interface i
 Stretch: write one fuzz test for a parser or validator.
 
 ### Day 2: HTTP contracts and request lifecycle
+
+Detailed lesson: [Day 2: HTTP contracts and request lifecycle](study-materials/day-02-http-contracts-and-lifecycle.md). It explains the complete request path and guides the bounded `net/http` implementation, negative handler tests, and shutdown proof.
 
 Learn:
 
@@ -197,6 +201,8 @@ Stretch: implement cursor pagination without exposing a database offset.
 
 ### Day 3: Relational data and PostgreSQL
 
+Detailed lesson: [Day 3: PostgreSQL and relational data](study-materials/day-03-postgresql-and-relational-data.md). It explains relational integrity and guides migrations, PostgreSQL adapters, transaction rollback, concurrency tests, and query-plan inspection.
+
 Learn:
 
 - tables, keys, foreign keys, unique/check constraints, normalization, and nullability;
@@ -221,6 +227,8 @@ Stretch: inspect and explain the query plan for product pagination.
 
 ### Day 4: Business logic and architecture
 
+Detailed lesson: [Day 4: Business logic and architecture](study-materials/day-04-business-logic-and-architecture.md). It explains representation and dependency boundaries and guides the vertical feature refactor, `PlaceOrder` use case, transaction ownership, and architecture decision.
+
 Learn:
 
 - transport DTOs are not automatically domain or database models;
@@ -243,6 +251,8 @@ Must finish: two concurrent requests for the last unit of inventory must result 
 Stretch: document the transaction and locking choice in a short architecture decision record.
 
 ### Day 5: Identity and API security
+
+Detailed lesson: [Day 5: Identity and API security](study-materials/day-05-identity-and-api-security.md). It explains resource-server security and guides token and JWKS validation, principal propagation, role and object authorization, negative tests, redaction, and threat modeling.
 
 Learn:
 
@@ -272,6 +282,8 @@ Stretch: write a compact threat model covering assets, trust boundaries, likely 
 
 ### Day 6: Tests, observability, and operations
 
+Detailed lesson: [Day 6: Testing, observability, and operations](study-materials/day-06-testing-observability-and-operations.md). It explains evidence at each test and telemetry boundary and guides failure drills, resource limits, safe retries, an SLO, an alert, and a runbook.
+
 Learn:
 
 - unit tests isolate business rules; integration tests prove boundaries; acceptance tests prove workflows;
@@ -295,6 +307,8 @@ Must finish: use telemetry to distinguish a validation failure, a server bug, an
 Stretch: define a latency/error service-level objective and one burn-rate alert.
 
 ### Day 7: Delivery and production rehearsal
+
+Detailed lesson: [Day 7: Delivery and production rehearsal](study-materials/day-07-delivery-and-production-rehearsal.md). It explains reproducible artifacts and safe releases and guides the non-root image, CI, compatibility rehearsal, recovery evidence, and database incident drill.
 
 Learn:
 
@@ -332,9 +346,37 @@ The progression is deliberate:
 | Phases 19-23 | Learn data scaling, tenant isolation, security, cloud infrastructure, orchestration, and production operations |
 | Phases 24-26 | Integrate external systems, maintain a mature codebase, and complete an independently reviewed capstone |
 
-Microservices begin only after Phase 13. Before extraction, record baseline latency, failure modes, deployment effort, and module coupling so the learner can show whether the split improved anything.
+Independent microservice deployment begins only after Phase 13. Microservice boundary thinking begins in Phase 0 and is applied as a counterfactual in every phase. Before extraction, record baseline latency, failure modes, deployment effort, and module coupling so the learner can show whether the split improved anything.
+
+### Cross-cutting microservice lens
+
+The implementation remains a modular monolith until extraction is justified, but every phase must examine the consequences of a possible service boundary. This separates learning distributed-system constraints from prematurely paying their runtime and operational cost.
+
+At the end of every phase, record concise answers to these questions:
+
+1. **Capability and ownership:** Which business capability, data, rules, and team responsibility does this module own?
+2. **Boundary counterfactual:** If this call crossed a network, which local assumptions about latency, availability, ordering, or atomicity would stop being valid?
+3. **Contract and data:** What contract would become public, who could evolve it, and which datastore access would have to be replaced by an owned API or event?
+4. **Failure and operations:** Which deadlines, retries, idempotency controls, telemetry, security boundaries, deployment work, and on-call responsibilities would be added?
+5. **Decision evidence:** What measurable autonomy, isolation, scaling, ownership, or release benefit could justify extraction, and what evidence says to keep the module in-process?
+
+Apply the lens with increasing depth as the system develops:
+
+| Phases | Microservice lens |
+| --- | --- |
+| Phase 0 | Discover bounded contexts, vocabulary, invariants, information flow, and candidate ownership without treating contexts as deployments. |
+| Phases 1-4 | Build explicit composition, contracts, persistence ownership, and vertical modules that can be reasoned about independently. |
+| Phases 5-6 | Contrast local transactions and idempotency with the ambiguity, intermediate states, and compensation required across a network. |
+| Phases 7-10 | Establish the observability, deployment, capacity, and recovery baseline against which extraction cost and benefit can be measured. |
+| Phases 11-13 | Practice durable work, message delivery, replay, partial failure, time, leases, partitions, and reconciliation before creating service dependencies. |
+| Phases 14-18 | Extract only with evidence, then implement owned data, remote-call policy, distributed workflows, compatibility, and end-to-end diagnosis. |
+| Phases 19-26 | Re-evaluate boundaries under scale, tenant isolation, security, platform, reliability, integration, maintenance, and leadership constraints. |
+
+The lens is a design and review exercise before Phase 14, not permission to add speculative RPC clients, brokers, separate datastores, deployment manifests, or interfaces without a present use.
 
 ### Phase 0: Domain discovery and modeling
+
+Detailed lesson: [Phase 0: Domain discovery and modeling](study-materials/phase-lessons/00-domain-discovery.md#phase-0-domain-discovery-and-modeling).
 
 Learn:
 
@@ -363,6 +405,8 @@ Acceptance criteria:
 
 ### Phase 1: Decisions and executable skeleton
 
+Detailed lesson: [Phase 1: Decisions and executable skeleton](study-materials/phase-lessons/01-05-service-core.md#phase-1-decisions-and-executable-skeleton).
+
 Deliver:
 
 - Go module, basic command, typed configuration, Make targets, and local PostgreSQL;
@@ -378,6 +422,8 @@ Acceptance criteria:
 
 ### Phase 2: HTTP platform
 
+Detailed lesson: [Phase 2: HTTP platform](study-materials/phase-lessons/01-05-service-core.md#phase-2-http-platform).
+
 Deliver:
 
 - router, response encoding, problem-details error shape, request IDs, recovery, body limits, and access logging;
@@ -391,6 +437,8 @@ Acceptance criteria:
 - server timeouts and maximum header/body sizes are explicit.
 
 ### Phase 3: Persistence foundation
+
+Detailed lesson: [Phase 3: Persistence foundation](study-materials/phase-lessons/01-05-service-core.md#phase-3-persistence-foundation).
 
 Deliver:
 
@@ -407,6 +455,8 @@ Acceptance criteria:
 
 ### Phase 4: Product slice
 
+Detailed lesson: [Phase 4: Product slice](study-materials/phase-lessons/01-05-service-core.md#phase-4-product-slice).
+
 Deliver:
 
 - create and list product use cases, handlers, repositories, and tests;
@@ -420,6 +470,8 @@ Acceptance criteria:
 - unauthorized and forbidden cases are distinct and tested.
 
 ### Phase 5: Order transaction
+
+Detailed lesson: [Phase 5: Order transaction](study-materials/phase-lessons/01-05-service-core.md#phase-5-order-transaction).
 
 Deliver:
 
@@ -436,6 +488,8 @@ Acceptance criteria:
 
 ### Phase 6: Idempotency and failure semantics
 
+Detailed lesson: [Phase 6: Idempotency and failure semantics](study-materials/phase-lessons/06-10-production-service.md#phase-6-idempotency-and-failure-semantics).
+
 Deliver:
 
 - required `Idempotency-Key` for order creation;
@@ -451,6 +505,8 @@ Acceptance criteria:
 
 ### Phase 7: Observability and operational controls
 
+Detailed lesson: [Phase 7: Observability and operational controls](study-materials/phase-lessons/06-10-production-service.md#phase-7-observability-and-operational-controls).
+
 Deliver:
 
 - structured logs, standard service metrics, distributed traces, dashboards, alerts, and a runbook;
@@ -464,6 +520,8 @@ Acceptance criteria:
 - the runbook explains symptoms, queries, mitigation, rollback, and escalation.
 
 ### Phase 8: Deployment hardening
+
+Detailed lesson: [Phase 8: Deployment hardening](study-materials/phase-lessons/06-10-production-service.md#phase-8-deployment-hardening).
 
 Deliver:
 
@@ -480,6 +538,8 @@ Acceptance criteria:
 - an old and new application version can coexist during schema rollout.
 
 ### Phase 9: Performance and resilience based on evidence
+
+Detailed lesson: [Phase 9: Performance and resilience based on evidence](study-materials/phase-lessons/06-10-production-service.md#phase-9-performance-and-resilience-based-on-evidence).
 
 Learn:
 
@@ -505,6 +565,8 @@ Acceptance criteria:
 - correctness tests continue to pass under load and failure injection.
 
 ### Phase 10: Advanced PostgreSQL operations and recovery
+
+Detailed lesson: [Phase 10: Advanced PostgreSQL operations and recovery](study-materials/phase-lessons/06-10-production-service.md#phase-10-advanced-postgresql-operations-and-recovery).
 
 Learn:
 
@@ -533,6 +595,8 @@ Acceptance criteria:
 
 ### Phase 11: Durable background jobs and scheduling
 
+Detailed lesson: [Phase 11: Durable background jobs and scheduling](study-materials/phase-lessons/11-13-distributed-foundations.md#phase-11-durable-background-jobs-and-scheduling).
+
 Learn:
 
 - an in-process goroutine is not a durable job system;
@@ -557,6 +621,8 @@ Acceptance criteria:
 
 ### Phase 12: Reliable event publication and consumption
 
+Detailed lesson: [Phase 12: Reliable event publication and consumption](study-materials/phase-lessons/11-13-distributed-foundations.md#phase-12-reliable-event-publication-and-consumption).
+
 Learn:
 
 - a database commit and broker publish cannot normally be one local atomic transaction;
@@ -580,6 +646,8 @@ Acceptance criteria:
 - lag, redelivery, dead-letter count, and oldest-event age are observable.
 
 ### Phase 13: Distributed-systems mechanics lab
+
+Detailed lesson: [Phase 13: Distributed-systems mechanics lab](study-materials/phase-lessons/11-13-distributed-foundations.md#phase-13-distributed-systems-mechanics-lab).
 
 Learn:
 
@@ -608,6 +676,8 @@ Acceptance criteria:
 
 ### Phase 14: Service-boundary discovery and first extraction
 
+Detailed lesson: [Phase 14: Service-boundary discovery and first extraction](study-materials/phase-lessons/14-18-service-extraction.md#phase-14-service-boundary-discovery-and-first-extraction).
+
 Learn:
 
 - service boundaries should follow business capabilities and ownership, not tables or technical layers;
@@ -632,6 +702,8 @@ Acceptance criteria:
 - measured benefits and added operational costs are recorded honestly.
 
 ### Phase 15: Synchronous service communication and the system edge
+
+Detailed lesson: [Phase 15: Synchronous service communication and the system edge](study-materials/phase-lessons/14-18-service-extraction.md#phase-15-synchronous-service-communication-and-the-system-edge).
 
 Learn:
 
@@ -659,6 +731,8 @@ Acceptance criteria:
 
 ### Phase 16: Distributed workflows and eventual consistency
 
+Detailed lesson: [Phase 16: Distributed workflows and eventual consistency](study-materials/phase-lessons/14-18-service-extraction.md#phase-16-distributed-workflows-and-eventual-consistency).
+
 Learn:
 
 - a local ACID transaction cannot atomically update independently owned service databases;
@@ -683,6 +757,8 @@ Acceptance criteria:
 - a stuck workflow is detectable, diagnosable, and safely repairable.
 
 ### Phase 17: Contract evolution and independent delivery
+
+Detailed lesson: [Phase 17: Contract evolution and independent delivery](study-materials/phase-lessons/14-18-service-extraction.md#phase-17-contract-evolution-and-independent-delivery).
 
 Learn:
 
@@ -709,6 +785,8 @@ Acceptance criteria:
 
 ### Phase 18: Distributed observability and resilience validation
 
+Detailed lesson: [Phase 18: Distributed observability and resilience validation](study-materials/phase-lessons/14-18-service-extraction.md#phase-18-distributed-observability-and-resilience-validation).
+
 Learn:
 
 - trace context must cross HTTP, RPC, broker, and background-job boundaries;
@@ -733,6 +811,8 @@ Acceptance criteria:
 - telemetry identifies the first failing dependency instead of only reporting downstream symptoms.
 
 ### Phase 19: Data scaling, caching, and multi-tenancy
+
+Detailed lesson: [Phase 19: Data scaling, caching, and multi-tenancy](study-materials/phase-lessons/19-23-scale-operations.md#phase-19-data-scaling-caching-and-multi-tenancy).
 
 Learn:
 
@@ -760,6 +840,8 @@ Acceptance criteria:
 
 ### Phase 20: Security, privacy, and software supply chain
 
+Detailed lesson: [Phase 20: Security, privacy, and software supply chain](study-materials/phase-lessons/19-23-scale-operations.md#phase-20-security-privacy-and-software-supply-chain).
+
 Learn:
 
 - every new service, queue, datastore, and operator endpoint adds a trust boundary;
@@ -784,6 +866,8 @@ Acceptance criteria:
 - a vulnerable dependency can be identified, patched, rebuilt, verified, and deployed through the normal pipeline.
 
 ### Phase 21: Cloud infrastructure and IAM
+
+Detailed lesson: [Phase 21: Cloud infrastructure and IAM](study-materials/phase-lessons/19-23-scale-operations.md#phase-21-cloud-infrastructure-and-iam).
 
 Learn:
 
@@ -812,6 +896,8 @@ Acceptance criteria:
 
 ### Phase 22: Orchestration and platform operations
 
+Detailed lesson: [Phase 22: Orchestration and platform operations](study-materials/phase-lessons/19-23-scale-operations.md#phase-22-orchestration-and-platform-operations).
+
 Learn:
 
 - an orchestrator schedules and reconciles workloads; application correctness still owns startup, readiness, and shutdown;
@@ -836,6 +922,8 @@ Acceptance criteria:
 - application teams can diagnose the platform boundary without cluster-admin access.
 
 ### Phase 23: Reliability engineering, incidents, and cost
+
+Detailed lesson: [Phase 23: Reliability engineering, incidents, and cost](study-materials/phase-lessons/19-23-scale-operations.md#phase-23-reliability-engineering-incidents-and-cost).
 
 Learn:
 
@@ -862,6 +950,8 @@ Acceptance criteria:
 
 ### Phase 24: Common production integration boundaries
 
+Detailed lesson: [Phase 24: Common production integration boundaries](study-materials/phase-lessons/24-26-integration-leadership.md#phase-24-common-production-integration-boundaries).
+
 Learn:
 
 - third-party APIs have quotas, rate limits, unstable latency, versioning, and ambiguous failures;
@@ -886,6 +976,8 @@ Acceptance criteria:
 - every derived view has a documented rebuild and reconciliation process.
 
 ### Phase 25: Maintenance and legacy-system evolution
+
+Detailed lesson: [Phase 25: Maintenance and legacy-system evolution](study-materials/phase-lessons/24-26-integration-leadership.md#phase-25-maintenance-and-legacy-system-evolution).
 
 Learn:
 
@@ -914,6 +1006,8 @@ Acceptance criteria:
 - another engineer can understand the legacy behavior, the change rationale, and the remaining risk from the handoff.
 
 ### Phase 26: Capstone delivery and engineering leadership
+
+Detailed lesson: [Phase 26: Capstone delivery and engineering leadership](study-materials/phase-lessons/24-26-integration-leadership.md#phase-26-capstone-delivery-and-engineering-leadership).
 
 The capstone should be reviewed as if it were a production change owned by a team.
 

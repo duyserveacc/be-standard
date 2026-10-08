@@ -14,7 +14,9 @@ The [backend learning roadmap](../BACKEND_LEARNING_ROADMAP.md) remains authorita
 | Phases 19-23 | Scale and operations | Can the system isolate tenants, run securely, and meet reliability goals? |
 | Phases 24-26 | Integration and leadership | Can the system evolve safely and can its decisions be defended? |
 
-The order matters. Distribution magnifies weak domain models, unsafe data handling, vague contracts, and poor observability. Build those foundations before adding service boundaries.
+The order matters. Distribution magnifies weak domain models, unsafe data handling, vague contracts, and poor observability. Build those foundations before adding independently deployed service boundaries.
+
+Microservice thinking still starts in Phase 0. In every phase, use the roadmap's [cross-cutting microservice lens](../BACKEND_LEARNING_ROADMAP.md#cross-cutting-microservice-lens) to ask what ownership is emerging, which assumptions would fail across a network, what contract and data access would become public, which operational costs would appear, and what evidence would justify extraction. Before Phase 14 this is a counterfactual design exercise, not a reason to add speculative distributed infrastructure.
 
 ## Phase 0: Domain discovery and modeling
 
@@ -640,6 +642,7 @@ Before calling any phase complete, be able to answer these questions:
 - **Time:** Which deadlines, leases, retention periods, retry windows, and clock assumptions exist?
 - **Resources:** Which pools, queues, payloads, retries, workers, and cardinalities are bounded?
 - **Failure:** What can fail partially, what becomes ambiguous, and how does the system converge or get repaired?
+- **Distribution:** Which local assumptions would break across a service boundary, and what evidence justifies paying that cost now?
 - **Security:** Who or what is the principal, what may it access, and how small is credential exposure?
 - **Observability:** Can an operator detect, diagnose, mitigate, and verify recovery without inspecting private data?
 - **Delivery:** Can old and new versions coexist, and is rollback or roll-forward tested?
