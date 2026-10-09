@@ -88,6 +88,10 @@ trace ID, route template, status, duration, and stable error code. Log an unexpe
 error once at the boundary with context. Never record tokens, cookies, bodies,
 credentials, or unrestricted personal data.
 
+When an audit record is required evidence for a financial or security-sensitive state
+change, commit it atomically with that change or record its publication through an
+outbox. A best-effort log written afterward can disappear during a crash.
+
 Metrics should cover traffic, errors, latency distributions, and saturation.
 Database pool acquisition wait often reveals pressure before requests fail. Labels
 must be bounded; IDs, raw paths, SKUs, user values, and error text belong elsewhere.

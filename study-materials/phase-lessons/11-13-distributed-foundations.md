@@ -88,6 +88,11 @@ after commit can lose the event on crash; publishing before commit can announce 
 change that later rolls back. The transactional outbox stores both business state
 and publication intent in one database transaction.
 
+An event inserted only after the business commit is not a transactional outbox. If an
+event is deliberately derived from authoritative state instead, name that weaker
+guarantee and run a bounded, tested reconciliation process that reconstructs missing
+intent after crashes.
+
 An outbox event includes immutable event ID, aggregate ID, event type, schema version,
 occurred time, bounded payload, ordering key, attempt state, and publication metadata.
 `OrderPlaced` is written beside the order before commit.

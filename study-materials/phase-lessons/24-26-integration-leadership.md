@@ -23,7 +23,11 @@ documented algorithm and key, compare signatures safely, check a bounded timesta
 replay window, deduplicate event identity durably, and return quickly after recording
 durable work. Key rotation requires overlapping verification keys. Outbound webhook
 delivery needs attempt history, signature, idempotent event identity, backoff,
-disable/quarantine rules, and customer-visible diagnostics.
+disable/quarantine rules, and customer-visible diagnostics. Treat subscriber URLs as
+SSRF input: require HTTPS, resolve and reject private/link-local destinations, prevent
+or revalidate redirects, defend against DNS rebinding, and restrict runtime egress.
+Retry network failures, throttling, and selected server failures; treat most client
+errors as permanent, honor `Retry-After`, and use bounded backoff with jitter.
 
 Large uploads should go directly from an authorized client to object storage using a
 short-lived, narrowly scoped upload grant. Use random object keys, size/type limits,
@@ -45,7 +49,8 @@ Do not write business truth only to search.
 2. Implement bounded client behavior, stable error classes, a fake, and sandbox test.
 3. Add inbound webhook byte limits, raw-body signature, timestamp, key rotation,
    durable dedupe, and asynchronous processing.
-4. Add outbound webhook subscription, signed delivery, history, retry, and quarantine.
+4. Add outbound webhook subscription, safe destination validation, signed delivery,
+   history, classified retry, and quarantine.
 5. Design direct object upload grants and server-side completion verification.
 6. Stream processing with checksum and bounded buffers; add scan/quarantine states.
 7. Add notification preferences and authenticated provider callback handling.
@@ -58,9 +63,10 @@ Do not write business truth only to search.
 
 Return provider timeout, throttle, malformed/oversized body, and ambiguous write.
 Forge, duplicate, reorder, delay, and rotate webhook signatures. Take the subscriber
-endpoint down. Upload oversized, mislabeled, checksum-invalid, unauthorized, and
-malicious objects. Duplicate bounce callbacks. Delete the search index and rebuild it
-while new events arrive.
+endpoint down; try private and DNS-rebound destinations; return permanent `4xx`,
+throttling, and transient `5xx` responses. Upload oversized, mislabeled,
+checksum-invalid, unauthorized, and malicious objects. Duplicate bounce callbacks.
+Delete the search index and rebuild it while new events arrive.
 
 ### Knowledge check and expected answers
 
@@ -74,9 +80,10 @@ while new events arrive.
 ### Completion evidence
 
 Provider timeout/throttle/outage outcomes are deterministic; webhook forgery,
-replay, duplicates, reorder, downtime, and rotation are tested; file streaming stays
-bounded and unauthorized objects remain inaccessible; notification callbacks are
-idempotent; and derived views rebuild/reconcile entirely from authoritative state.
+replay, duplicates, reorder, downtime, rotation, unsafe destinations, and retry
+classification are tested; file streaming stays bounded and unauthorized objects
+remain inaccessible; notification callbacks are idempotent; and derived views
+rebuild/reconcile entirely from authoritative state.
 
 ## Phase 25: Maintenance and Legacy-System Evolution
 
